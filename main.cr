@@ -30,7 +30,7 @@ OptionParser.parse do |parser|
     packages.each do |package|
       pacman_string += "#{package} "
     end
-    pacman_string += "--noconfirm"
+    pacman_string += "--noconfirm --needed"
     args << "-c" << pacman_string
     Process.run(cmd, args, shell: true, output: io)
     puts io.to_s
