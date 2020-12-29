@@ -22,7 +22,7 @@ OptionParser.parse do |parser|
     print "> "
     password = gets
 
-    response = HTTP::Client.post "http://127.0.0.1:9292/users/sign_up", headers: nil, form: {email: email, password: password}.to_json
+    response = HTTP::Client.post "https://yelst-backend.herokuapp.com/users/sign_up", headers: nil, form: {email: email, password: password}.to_json
 
     cmd = "sh"
     args = [] of String
@@ -44,7 +44,7 @@ OptionParser.parse do |parser|
     print "> "
     password = gets
 
-    response = HTTP::Client.post "http://127.0.0.1:9292/users/sign_in", headers: nil, form: {email: email, password: password}.to_json
+    response = HTTP::Client.post "https://yelst-backend.herokuapp.com/users/sign_in", headers: nil, form: {email: email, password: password}.to_json
 
     cmd = "sh"
     args = [] of String
@@ -73,7 +73,7 @@ OptionParser.parse do |parser|
     token = io.to_s.sub("export YELST_TOKEN=", "").sub("\n", "")
 
     headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
-    response = HTTP::Client.post "http://127.0.0.1:9292/packages/set_list", headers: headers, form: {list: list}.to_json
+    response = HTTP::Client.post "https://yelst-backend.herokuapp.com/packages/set_list", headers: headers, form: {list: list}.to_json
 
     puts response.status
     exit
@@ -88,7 +88,7 @@ OptionParser.parse do |parser|
     token = io.to_s.sub("export YELST_TOKEN=", "").sub("\n", "")
 
     headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
-    response = HTTP::Client.get "http://127.0.0.1:9292/packages/get_list", headers: headers
+    response = HTTP::Client.get "https://yelst-backend.herokuapp.com/get_list", headers: headers
     packages = JSON.parse(response.body)["result"].to_s.split(" ")
 
     io = IO::Memory.new
