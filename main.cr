@@ -60,7 +60,7 @@ OptionParser.parse do |parser|
     token = io.to_s.sub("\n", "")
 
     headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
-    response = HTTP::Client.post "#{SERVER_URL}/packages/set_list", headers: headers, form: {list: list}.to_json
+    response = HTTP::Client.post "#{SERVER_URL}/packages/set_list", headers: headers, form: {list: list, hostname: hostname}.to_json
 
     puts response.status
     exit
@@ -93,14 +93,22 @@ def packages
   token = io.to_s.sub("\n", "")
 
   headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
-  response = HTTP::Client.get "#{SERVER_URL}/packages/get_list", headers: headers
+  response = HTTP::Client.get "#{SERVER_URL}/packages/get_list", headers: headers, form: {hostname: hostname}.to_json
+
   JSON.parse(response.body)["result"].to_s.split(" ")
 end
 
 def write_to_token_file(text)
-  cmd = "sh"
   args = [] of String
   token = "echo " + text + " > ~/.yelts_token"
   args << "-c" << token
   Process.run(CMD, args, shell: true)
+end
+
+def hostname
+  io = IO::Memory.new
+  args = [] of String
+  args << "-c" << "hostname"
+  Process.run(CMD, args, shell: true, output: io)
+  io.to_s.sub("\n", "")
 end
