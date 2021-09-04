@@ -2,6 +2,8 @@ require "option_parser"
 require "http/client"
 require "json"
 
+SERVER_URL="https://yelst-backend.herokuapp.com"
+
 OptionParser.parse do |parser|
   parser.on "-v", "--version", "Show version" do
     puts "version 1.0"
@@ -22,7 +24,7 @@ OptionParser.parse do |parser|
     print "> "
     password = gets
 
-    response = HTTP::Client.post "https://yelst-backend.herokuapp.com/users/sign_up", headers: nil, form: {email: email, password: password}.to_json
+    response = HTTP::Client.post "#{SERVER_URL}/users/sign_up", headers: nil, form: {email: email, password: password}.to_json
 
     cmd = "sh"
     args = [] of String
@@ -44,7 +46,7 @@ OptionParser.parse do |parser|
     print "> "
     password = gets
 
-    response = HTTP::Client.post "https://yelst-backend.herokuapp.com/users/sign_in", headers: nil, form: {email: email, password: password}.to_json
+    response = HTTP::Client.post "#{SERVER_URL}/users/sign_in", headers: nil, form: {email: email, password: password}.to_json
 
     cmd = "sh"
     args = [] of String
@@ -73,7 +75,7 @@ OptionParser.parse do |parser|
     token = io.to_s.sub("\n", "")
 
     headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
-    response = HTTP::Client.post "https://yelst-backend.herokuapp.com/packages/set_list", headers: headers, form: {list: list}.to_json
+    response = HTTP::Client.post "#{SERVER_URL}/packages/set_list", headers: headers, form: {list: list}.to_json
 
     puts response.status
     exit
@@ -88,7 +90,7 @@ OptionParser.parse do |parser|
     token = io.to_s.sub("\n", "")
 
     headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
-    response = HTTP::Client.get "https://yelst-backend.herokuapp.com/packages/get_list", headers: headers
+    response = HTTP::Client.get "#{SERVER_URL}/packages/get_list", headers: headers
     packages = JSON.parse(response.body)["result"].to_s.split(" ")
 
     puts packages
@@ -104,7 +106,7 @@ OptionParser.parse do |parser|
     token = io.to_s.sub("\n", "")
 
     headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
-    response = HTTP::Client.get "https://yelst-backend.herokuapp.com/packages/get_list", headers: headers
+    response = HTTP::Client.get "#{SERVER_URL}/packages/get_list", headers: headers
     packages = JSON.parse(response.body)["result"].to_s.split(" ")
 
     io = IO::Memory.new
