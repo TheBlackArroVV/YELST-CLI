@@ -26,7 +26,7 @@ OptionParser.parse do |parser|
 
     cmd = "sh"
     args = [] of String
-    token = "echo export YELST_TOKEN=" + JSON.parse(response.body)["result"].to_s + " >> ~/.zshrc"
+    token = "echo " + JSON.parse(response.body)["result"].to_s + " > ~/.yelts_token"
     args << "-c" << token
 
     puts args
@@ -48,7 +48,7 @@ OptionParser.parse do |parser|
 
     cmd = "sh"
     args = [] of String
-    token = "echo export YELST_TOKEN=" + JSON.parse(response.body)["result"].to_s + " >> ~/.zshrc"
+    token = "echo " + JSON.parse(response.body)["result"].to_s + " > ~/.yelts_token"
     args << "-c" << token
 
     puts args
@@ -67,10 +67,10 @@ OptionParser.parse do |parser|
     list = io.to_s.split("\n")
 
     args = [] of String
-    args << "-c" << "cat ~/.zshrc | grep YELST_TOKEN"
+    args << "-c" << "cat ~/.yelts_token"
     io = IO::Memory.new
     Process.run(cmd, args, shell: true, output: io)
-    token = io.to_s.sub("export YELST_TOKEN=", "").sub("\n", "")
+    token = io.to_s.sub("\n", "")
 
     headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
     response = HTTP::Client.post "https://yelst-backend.herokuapp.com/packages/set_list", headers: headers, form: {list: list}.to_json
@@ -79,16 +79,32 @@ OptionParser.parse do |parser|
     exit
   end
 
+  parser.on "list", "List of saved packages" do
+    cmd = "sh"
+    args = [] of String
+    args << "-c" << "cat ~/.yelts_token"
+    io = IO::Memory.new
+    Process.run(cmd, args, shell: true, output: io)
+    token = io.to_s.sub("\n", "")
+
+    headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
+    response = HTTP::Client.get "https://yelst-backend.herokuapp.com/packages/get_list", headers: headers
+    packages = JSON.parse(response.body)["result"].to_s.split(" ")
+
+    puts packages
+    exit
+  end
+
   parser.on "restore", "Restore packages from list" do
     cmd = "sh"
     args = [] of String
-    args << "-c" << "cat ~/.zshrc | grep YELST_TOKEN"
+    args << "-c" << "cat ~/.yelts_token"
     io = IO::Memory.new
     Process.run(cmd, args, shell: true, output: io)
-    token = io.to_s.sub("export YELST_TOKEN=", "").sub("\n", "")
+    token = io.to_s.sub("\n", "")
 
     headers =  HTTP::Headers.new.add("Authorization", value: "Bearer #{token}")
-    response = HTTP::Client.get "https://yelst-backend.herokuapp.com/get_list", headers: headers
+    response = HTTP::Client.get "https://yelst-backend.herokuapp.com/packages/get_list", headers: headers
     packages = JSON.parse(response.body)["result"].to_s.split(" ")
 
     io = IO::Memory.new
